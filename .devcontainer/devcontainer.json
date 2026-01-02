@@ -1,11 +1,8 @@
 {
-  "name": "homebrain",
-  "dockerComposeFile": [
-    "../docker-compose.dev.yaml"
-  ],
-  "service": "backend",
-  "workspaceFolder": "/app",
-  "postCreateCommand": "uv sync --extra dev",
+  "name": "homebrain-backend",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "postCreateCommand": "uv sync --frozen --group dev",
   "forwardPorts": [8001],
   "customizations": {
     "vscode": {
@@ -13,12 +10,20 @@
         "ms-python.python",
         "ms-python.vscode-pylance",
         "charliermarsh.ruff",
-        "ms-azuretools.vscode-docker",
         "johnpapa.vscode-peacock"
       ],
       "settings": {
         "peacock.color": "#dd0531",
-        "peacock.remoteColor": "#dd0531"
+        "peacock.remoteColor": "#dd0531",
+        "python.testing.pytestEnabled": true,
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestArgs": ["tests"],
+        "python.analysis.typeCheckingMode": "standard",
+        "python.analysis.inlayHints.pytestParameters": true,
+        "python.analysis.inlayHints.functionReturnTypes": true,
+        "python.analysis.inlayHints.variableTypes": false,
+        "python.analysis.inlayHints.callArgumentNames": "partial",
+        "editor.inlayHints.enabled": "onUnlessPressed"
       }
     }
   }
