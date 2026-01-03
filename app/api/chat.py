@@ -4,7 +4,6 @@ app/api/chat.py
 """
 import json
 import logging
-import time
 from typing import AsyncIterator
 from fastapi import Depends, APIRouter, Request
 from fastapi.responses import StreamingResponse
@@ -37,7 +36,6 @@ async def chat_stream(chat_request: ChatRequest, request: Request, graph=Depends
     log.info("chat stream start", extra={"thread_id": thread_id, "msg_len": len(chat_request.message)})
 
     async def event_stream() -> AsyncIterator[str]:
-        last_ping = time.monotonic()
         try:
             for event in event_gen:
                 if await request.is_disconnected():
