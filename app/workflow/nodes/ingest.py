@@ -6,7 +6,6 @@ app/agents/homebrain/ingest.py
 """
 import logging
 from typing import Any
-from langchain_core.messages import AnyMessage, HumanMessage
 from app.workflow.agents.homebrain.state import HomebrainState
 from app.workflow.utils.messages import last_human_text
 

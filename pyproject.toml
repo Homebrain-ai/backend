@@ -13,9 +13,11 @@ dependencies = [
   "pydantic",
   "pydantic-settings",
   "sqlalchemy>=2.0",
-  "psycopg[binary]",
+  "psycopg[binary,pool]",
   "langchain",
   "langgraph",
+  "langgraph.checkpoint.postgres",
+  "langchain_google_genai",
   "langchain-core",
   "langchain-chroma",
 ]
