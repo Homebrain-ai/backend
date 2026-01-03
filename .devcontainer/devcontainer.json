@@ -4,6 +4,9 @@
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "postCreateCommand": "uv sync --frozen --group dev",
   "forwardPorts": [8001],
+  "features": {
+    "ghcr.io/jsburckhardt/devcontainer-features/uv:1": {}
+  },
   "customizations": {
     "vscode": {
       "extensions": [
