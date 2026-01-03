@@ -17,6 +17,7 @@
         "ms-python.python",
         "ms-python.vscode-pylance",
         "charliermarsh.ruff",
+        "ms-azuretools.vscode-docker",
         "johnpapa.vscode-peacock"
       ],
       "settings": {
