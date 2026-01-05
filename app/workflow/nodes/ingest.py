@@ -1,5 +1,5 @@
 """
-app/agents/homebrain/ingest.py
+app/workflow/nodes/ingest.py
 - Validate/normalize user input before passing to router
 - Only raise Python errors not HTTP errors
 - Clears out state fields that shouldn't be persisted (like route decisions)

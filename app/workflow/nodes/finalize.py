@@ -1,5 +1,5 @@
 """
-app/agents/homebrain/finalize.py
+app/workflow/nodes/finalize.py
 - Does not generate new assistant text
 - Only deterministic finalization logic
 """
