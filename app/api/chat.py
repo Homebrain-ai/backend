@@ -4,13 +4,14 @@ app/api/chat.py
 """
 import json
 import logging
-from typing import AsyncIterator
-from fastapi import Depends, APIRouter, Request
+from collections.abc import AsyncIterator
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import StreamingResponse
 from app.api.deps import get_graph
 from app.schemas.api import ChatRequest
-from app.schemas.events import StreamEvent, ErrorEvent
+from app.schemas.events import ErrorEvent, StreamEvent
 from app.services.chat import chat_turn_stream
+
 
 
 log = logging.getLogger(__name__)

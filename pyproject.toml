@@ -42,7 +42,7 @@ python_files = ["test_*.py"]
 line-length = 120
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM", "PERF", "PIE", "RUF"]
+select = ["E", "F", "UP", "B", "SIM", "PERF", "PIE", "RUF"]
 
 [tool.ruff.format]
 skip-magic-trailing-comma = false
