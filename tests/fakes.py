@@ -1,10 +1,7 @@
 # backend/tests/unit/fakes.py
-
-
+from app.schemas.routing import RouteDecision
 
 class FakeStructuredRouter:
-    """Minimal fake that mimics structured_router.invoke(prompt)."""
-
     def __init__(self, decision: RouteDecision | None = None, exc: Exception | None = None):
         self._decision = decision
         self._exc = exc
@@ -19,8 +16,6 @@ class FakeStructuredRouter:
 
 
 class FakeLLM:
-    """Minimal fake that supports llm.with_structured_output(RouteDecision)."""
-
     def __init__(self, structured_router: FakeStructuredRouter):
         self._structured_router = structured_router
 
