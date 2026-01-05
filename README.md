@@ -38,6 +38,11 @@ finalize        (format answer + redact/deny sensitive requests)
 END
 ```
 
+# Working on
+
+- [ ] unit tests
+- [ ] FastAPI optimization (streaming, error handling, division of layers)
+
 ## React Compiler
 
 The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
