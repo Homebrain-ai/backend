@@ -1,11 +1,13 @@
 """
 app/main.py
 """
-import logging 
-from fastapi import FastAPI
-from app.lifespan import lifespan
-from app.api.chat import router as chat_router
 
+import logging
+
+from fastapi import FastAPI
+
+from app.api.chat import router as chat_router
+from app.lifespan import lifespan
 
 log = logging.getLogger(__name__)
 

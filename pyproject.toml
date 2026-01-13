@@ -39,7 +39,7 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 
 [tool.ruff]
-line-length = 120
+line-length = 150
 
 [tool.ruff.lint]
 select = ["E", "F", "UP", "B", "SIM", "PERF", "PIE", "RUF"]

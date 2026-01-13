@@ -1,11 +1,13 @@
 """
 app/agents/utils/messages.py
 """
-from __future__ import annotations
-from typing import Any, Iterable, Optional, Sequence, TypedDict
-from langchain_core.messages import AnyMessage, AIMessage, HumanMessage, ToolMessage
-from typing import Literal
 
+from __future__ import annotations
+
+from collections.abc import Iterable, Sequence
+from typing import Any, Literal, TypedDict
+
+from langchain_core.messages import AIMessage, AnyMessage, HumanMessage, ToolMessage
 
 ContentMode = Literal["stream", "debug"]
 
@@ -21,17 +23,15 @@ class ThreadConfig(TypedDict, total=False):
     - configurable.thread_id is the key used by LangGraph checkpointers for thread persistence.
     - tags/metadata are optional but useful for logging/observability.
     """
+
     configurable: dict[str, Any]
     tags: list[str]
     metadata: dict[str, Any]
 
 
-def thread_config(thread_id: str, 
-                *, 
-                user_id: Optional[str] = None, 
-                tags: Optional[Sequence[str]] = None, 
-                metadata: Optional[dict[str, Any]] = None
-                ) -> ThreadConfig:
+def thread_config(
+    thread_id: str, *, user_id: str | None = None, tags: Sequence[str] | None = None, metadata: dict[str, Any] | None = None
+) -> ThreadConfig:
     """
     Builds a RunnableConfig dict for LangGraph runs.
 
@@ -60,7 +60,7 @@ def thread_config(thread_id: str,
     return cfg
 
 
-def content_to_text(content:Any, *, mode: ContentMode = "stream") -> str:
+def content_to_text(content: Any, *, mode: ContentMode = "stream") -> str:
     """
     Convert LangChain message content into plain text.
     mode="stream" (default): strict + safe for user streaming
@@ -80,11 +80,7 @@ def content_to_text(content:Any, *, mode: ContentMode = "stream") -> str:
                 continue
 
             if isinstance(part, dict):
-                if part.get("type") == "text":
-                    text = part.get("text")
-                    if isinstance(text, str):
-                        parts.append(text)
-                elif mode == "debug": 
+                if part.get("type") == "text" or mode == "debug":
                     text = part.get("text")
                     if isinstance(text, str):
                         parts.append(text)
@@ -111,7 +107,7 @@ def last_ai_text(messages: Iterable[AnyMessage]) -> str:
     return message_text(msg) if msg is not None else ""
 
 
-def last_human_message(messages: Iterable[AnyMessage]) -> Optional[HumanMessage]:
+def last_human_message(messages: Iterable[AnyMessage]) -> HumanMessage | None:
     """Return the last HumanMessage in the iterable, if any."""
     for msg in reversed(list(messages)):
         if isinstance(msg, HumanMessage):
@@ -119,7 +115,7 @@ def last_human_message(messages: Iterable[AnyMessage]) -> Optional[HumanMessage]
     return None
 
 
-def last_ai_message(messages: Iterable[AnyMessage]) -> Optional[AIMessage]:
+def last_ai_message(messages: Iterable[AnyMessage]) -> AIMessage | None:
     """Return the last AIMessage in the iterable, if any."""
     for msg in reversed(list(messages)):
         if isinstance(msg, AIMessage):
@@ -127,7 +123,7 @@ def last_ai_message(messages: Iterable[AnyMessage]) -> Optional[AIMessage]:
     return None
 
 
-def last_tool_message(messages: Iterable[AnyMessage]) -> Optional[ToolMessage]:
+def last_tool_message(messages: Iterable[AnyMessage]) -> ToolMessage | None:
     """Return the last ToolMessage in the iterable, if any."""
     for msg in reversed(list(messages)):
         if isinstance(msg, ToolMessage):
