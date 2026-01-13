@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.bootstrap import Runtime, create_runtime
+from app.runtime import Runtime, create_runtime
 from app.db.core import Base, SQLengine
 from app.settings import get_settings
 

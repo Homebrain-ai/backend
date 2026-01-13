@@ -12,7 +12,7 @@ from typing import Annotated, Any
 
 from fastapi import Depends, Request
 
-from app.bootstrap import Runtime
+from app.runtime import Runtime
 from app.settings import Settings
 
 type Graph = Any

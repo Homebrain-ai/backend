@@ -54,5 +54,3 @@ def create_runtime(settings: Settings) -> Runtime:
             except Exception:
                 log.exception("runtime: failed to close checkpointer resource after init failure")
         raise
-
-    return Runtime(settings=settings, llm=llm, checkpointer_resource=checkpointer_resource, graph=graph)
