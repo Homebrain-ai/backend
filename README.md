@@ -46,9 +46,9 @@ To cut a **stable release** include `#release` in the merge commit message (or s
 
 ### Bump options
 
-* `#major`
-* `#minor`
-* `#patch`
+* `#major` or `BREAKING CHANGE`
+* `#minor` or starts with `feat:`
+* `#patch` or starts with `fix:`
 
 If none is provided, the workflow bumps **patch**.
 
