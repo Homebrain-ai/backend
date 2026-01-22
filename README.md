@@ -10,15 +10,15 @@ This repo builds and publishes the Homebrain backend Docker image to GitHub Cont
 ```bash
 START
   ↓
-ingest_message  (normalize input, append to messages)
+ingest_message  (normalize input)
   ↓
-router          (classify route + confidence + “needs review?”)
+router          (classify route)
   ├─→ personal_react_agent
   ├─→ projects_react_agent
   ├─→ homelab_react_agent   (tools + RAG + approvals)
   └─→ general_react_agent
   ↓
-finalize        (format answer + redact/deny sensitive requests)
+finalize        (format answer + censor)
   ↓
 END
 ```
