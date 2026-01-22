@@ -152,7 +152,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          IMAGE="ghcr.io/${{ github.repository_owner }}/homebrain-backend"
+          OWNER_LC="${GITHUB_REPOSITORY_OWNER,,}"
+          IMAGE="ghcr.io/${OWNER_LC}/homebrain-backend"
           SHA_TAG="sha-${GITHUB_SHA}"
 
           TAGS="$IMAGE:latest
