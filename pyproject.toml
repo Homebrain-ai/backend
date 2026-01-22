@@ -13,12 +13,36 @@ dependencies = [
   "pydantic",
   "pydantic-settings",
   "sqlalchemy>=2.0",
-  "psycopg[binary]",
+  "psycopg[binary,pool]",
   "langchain",
   "langgraph",
+  "langgraph.checkpoint.postgres",
+  "langchain_google_genai",
+  "langchain-core",
   "langchain-chroma",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=9.0.2",
+  "pytest-asyncio>=1.3.0",
+  "httpx>=0.28.1",
+  "ruff>=0.9.0"
 ]
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.ruff]
+line-length = 150
+
+[tool.ruff.lint]
+select = ["E", "F", "UP", "B", "SIM", "PERF", "PIE", "RUF"]
+
+[tool.ruff.format]
+skip-magic-trailing-comma = false

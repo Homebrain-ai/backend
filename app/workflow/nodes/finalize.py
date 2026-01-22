@@ -1,11 +1,10 @@
 """
-app/agents/homebrain/finalize.py
+app/workflow/nodes/finalize.py
 - Does not generate new assistant text
 - Only deterministic finalization logic
 """
 import logging
 from typing import Any
-from langchain_core.messages import AnyMessage
 from app.workflow.agents.homebrain.state import HomebrainState
 from app.workflow.utils.messages import last_ai_text
 
