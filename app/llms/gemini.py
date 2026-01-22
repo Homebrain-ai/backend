@@ -2,7 +2,7 @@
 app/llms/gemini.py
 """
 from langchain_google_genai import ChatGoogleGenerativeAI
-from backend.app.settings import Settings
+from app.settings import Settings
 
 
 def build_gemini_llm(settings: Settings) -> ChatGoogleGenerativeAI:

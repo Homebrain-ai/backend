@@ -1,0 +1,23 @@
+# local env / IDE
+.venv/
+.vscode/
+
+
+# git
+.git/
+
+
+# tools
+__pycache__/
+.ruff_cache/
+tests/
+
+
+# Artifacts
+backend.egg-info/
+
+
+# Secrets
+.env
+.env.*
+

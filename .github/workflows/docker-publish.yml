@@ -1,0 +1,187 @@
+name: Publish backend
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "Force a stable release?"
+        required: true
+        default: "false"
+        type: choice
+        options: ["false", "true"]
+      bump:
+        description: "Version bump (patch/minor/major) if releasing"
+        required: true
+        default: "patch"
+        type: choice
+        options: [patch, minor, major]
+
+permissions:
+  contents: write   # push tags + create GitHub release
+  packages: write   # push image to GHCR
+
+concurrency:
+  group: backend-publish-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (full history + tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decide whether to cut a stable release
+        id: rel
+        shell: bash
+        run: |
+          set -euo pipefail
+          MSG="$(git log -1 --pretty=%B | tr -d '\r')"
+          echo "Last commit message:"
+          echo "$MSG"
+
+          FORCE="${{ inputs.release || 'false' }}"
+          if [ "$FORCE" = "true" ]; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if echo "$MSG" | grep -qiE '(#release)'; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Decide bump type (only if releasing)
+        id: bump
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.rel.outputs.release }}" != "true" ]; then
+            echo "bump=none" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Manual bump from workflow_dispatch wins
+          BUMP="${{ inputs.bump || '' }}"
+          if [ -n "$BUMP" ]; then
+            echo "bump=$BUMP" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          MSG="$(git log -1 --pretty=%B | tr -d '\r')"
+          if echo "$MSG" | grep -qiE '(#major|BREAKING CHANGE)'; then
+            BUMP="major"
+          elif echo "$MSG" | grep -qiE '(#minor|^feat:)'; then
+            BUMP="minor"
+          elif echo "$MSG" | grep -qiE '(#patch|^fix:)'; then
+            BUMP="patch"
+          else
+            BUMP="patch"
+          fi
+
+          echo "bump=$BUMP" >> "$GITHUB_OUTPUT"
+
+      - name: Compute next SemVer tag (only if releasing)
+        id: ver
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.rel.outputs.release }}" != "true" ]; then
+            echo "tag=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          BUMP="${{ steps.bump.outputs.bump }}"
+          LATEST="$(git tag -l 'v*' --sort=-v:refname | head -n 1 || true)"
+
+          if [ -z "$LATEST" ]; then
+            MAJOR=0; MINOR=1; PATCH=0
+          else
+            VER="${LATEST#v}"
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$VER"
+            : "${MAJOR:=0}" "${MINOR:=0}" "${PATCH:=0}"
+          fi
+
+          case "$BUMP" in
+            major) MAJOR=$((MAJOR+1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR+1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH+1)) ;;
+            *) echo "Unknown bump: $BUMP" >&2; exit 1 ;;
+          esac
+
+          TAG="v${MAJOR}.${MINOR}.${PATCH}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Next tag: $TAG (from: ${LATEST:-none})"
+
+      - name: Create and push git tag (only if releasing)
+        if: steps.rel.outputs.release == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.ver.outputs.tag }}"
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists; skipping."
+          else
+            git tag -a "$TAG" -m "Release $TAG"
+            git push origin "$TAG"
+          fi
+
+      - name: Create GitHub Release from tag (only if releasing)
+        if: steps.rel.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.ver.outputs.tag }}"
+          gh release create "$TAG" --title "$TAG" --generate-notes
+        # GitHub CLI supports --generate-notes for auto release notes. :contentReference[oaicite:2]{index=2}
+
+      - name: Compute image tags to push
+        id: img
+        shell: bash
+        run: |
+          set -euo pipefail
+          IMAGE="ghcr.io/${{ github.repository_owner }}/homebrain-backend"
+          SHA_TAG="sha-${GITHUB_SHA}"
+
+          TAGS="$IMAGE:latest
+          $IMAGE:$SHA_TAG"
+
+          if [ "${{ steps.rel.outputs.release }}" = "true" ]; then
+            TAGS="$TAGS
+            $IMAGE:${{ steps.ver.outputs.tag }}"
+          fi
+
+          echo "tags<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$TAGS" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.img.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
