@@ -1,4 +1,4 @@
-name: Mirror to subedi-labs (homebrain-backend)
+name: Mirror to subedi-labs
 
 on:
   push:
@@ -12,18 +12,22 @@ jobs:
     steps:
       - name: Mirror branches + tags (skip PR refs)
         env:
-          SRC: https://github.com/homebrain-ai/backend.git
-          DST: https://x-access-token:${{ secrets.SUBEDI_LABS_AUTOMATION_TOKEN }}@github.com/subedi-labs/homebrain-backend.git
+          DST_REPO: subedi-labs/homebrain-backend
+          TOKEN: ${{ secrets.SUBEDI_LABS_AUTOMATION_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
 
+          if [ -z "${TOKEN:-}" ]; then
+            echo "ERROR: SUBEDI_LABS_AUTOMATION_TOKEN missing/empty"
+            exit 1
+          fi
+
+          SRC="https://github.com/${GITHUB_REPOSITORY}.git"
+          DST="https://x-access-token:${TOKEN}@github.com/${DST_REPO}.git"
+
           git clone --mirror "$SRC" repo.git
           cd repo.git
 
-          # Push all branches (force to keep destination identical)
           git push --force "$DST" 'refs/heads/*:refs/heads/*'
-
-          # Push all tags (force in case tags move, optional but keeps true mirror behavior)
           git push --force --tags "$DST"
-
