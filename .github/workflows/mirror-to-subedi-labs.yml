@@ -13,7 +13,7 @@ jobs:
       - name: Mirror push
         env:
           SRC: https://github.com/homebrain-ai/backend.git
-          DST: https://x-access-token:${{ secrets.SUBEDI_LABS_MIRROR_TOKEN }}@github.com/subedi-labs/homebrain-backend.git
+          DST: https://x-access-token:${{ secrets.SUBEDI_LABS_AUTOMATION_TOKEN }}@github.com/subedi-labs/homebrain-backend.git
         run: |
           git clone --mirror "$SRC" repo.git
           cd repo.git
