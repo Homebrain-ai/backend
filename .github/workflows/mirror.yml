@@ -2,32 +2,46 @@ name: Mirror to subedi-labs
 
 on:
   push:
-    branches: ["**"]
-    tags: ["**"]
+    branches: ["main"]
+    tags: ["v*"]
   workflow_dispatch:
+
+concurrency:
+  group: mirror-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   mirror:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     steps:
       - name: Mirror branches + tags (skip PR refs)
         env:
           DST_REPO: subedi-labs/homebrain-backend
+
           TOKEN: ${{ secrets.SUBEDI_LABS_AUTOMATION_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
 
           if [ -z "${TOKEN:-}" ]; then
-            echo "ERROR: SUBEDI_LABS_AUTOMATION_TOKEN missing/empty"
+            echo "ERROR: SUBEDI_LABS_AUTOMATION_TOKEN is missing or empty."
             exit 1
           fi
 
           SRC="https://github.com/${GITHUB_REPOSITORY}.git"
           DST="https://x-access-token:${TOKEN}@github.com/${DST_REPO}.git"
 
+          echo "Source:      ${GITHUB_REPOSITORY}"
+          echo "Destination: ${DST_REPO}"
+
+          # Mirror clone the source repo (all branches + tags)
           git clone --mirror "$SRC" repo.git
           cd repo.git
 
+          # Push all branches (force keeps destination in sync)
           git push --force "$DST" 'refs/heads/*:refs/heads/*'
+
+          # Push all tags (force keeps tags in sync)
           git push --force --tags "$DST"
